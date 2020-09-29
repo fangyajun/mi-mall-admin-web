@@ -38,4 +38,21 @@ export function getNodeInfo(id) {
   })
 }
 
-export default { listTree, deleteCategory, updateSort, getNodeInfo }
+export function updateCategory(data) {
+  return request({
+    url: 'api/product/category/update',
+    method: 'post',
+    data
+  })
+}
+
+export function addCategory(data) {
+  return request({
+    url: 'api/product/category/save',
+    method: 'post',
+    data
+  })
+}
+
+
+export default { listTree, deleteCategory, updateSort, getNodeInfo, updateCategory, addCategory }

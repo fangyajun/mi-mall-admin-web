@@ -229,9 +229,7 @@ export default {
 
       //   this.maxLevel
       if (type == 'inner') {
-        // console.log(
-        //   `this.maxLevel：${this.maxLevel}；draggingNode.data.catLevel：${draggingNode.data.catLevel}；dropNode.level：${dropNode.level}`
-        // );
+
         return deep + dropNode.level <= 3
       } else {
         return deep + dropNode.parent.level <= 3
@@ -266,23 +264,6 @@ export default {
         this.category.sort = res.category.sort
         this.category.showStatus = res.category.showStatus
       })
-
-      // 发送请求获取当前节点最新的数据
-      // this.$http({
-      //   url: this.$http.adornUrl(`/product/category/info/${data.id}`),
-      //   method: "get"
-      // }).then(({ data }) => {
-      //   //请求成功
-      //   console.log("要回显的数据", data);
-      //   this.category.categoryName = data.category.categoryName;
-      //   this.category.id = data.category.id;
-      //   this.category.icon = data.category.icon;
-      //   this.category.productUnit = data.category.productUnit;
-      //   this.category.parentId = data.category.parentId;
-      //   this.category.categoryLevel = data.category.categoryLevel;
-      //   this.category.sort = data.category.sort;
-      //   this.category.showStatus = data.category.showStatus;
-      // });
     },
     append(data) {
       console.log('append', data)
@@ -310,11 +291,7 @@ export default {
     // 修改三级分类数据
     editCategory() {
       var { id, categoryName, icon, productUnit } = this.category
-      this.$http({
-        url: this.$http.adornUrl('/product/category/update'),
-        method: 'post',
-        data: this.$http.adornData({ id, categoryName, icon, productUnit }, false)
-      }).then(({ data }) => {
+      crudCategory.updateCategory({ id, categoryName, icon, productUnit }).then(res => {
         this.$message({
           message: '菜单修改成功',
           type: 'success'
@@ -325,17 +302,14 @@ export default {
         this.getMenus()
         // 设置需要默认展开的菜单
         this.expandedKey = [this.category.parentId]
+
       })
     },
     // 添加三级分类
     addCategory() {
       console.log('提交的三级分类数据', this.category)
-      this.$http({
-        url: this.$http.adornUrl('/product/category/save'),
-        method: 'post',
-        data: this.$http.adornData(this.category, false)
-      }).then(({ data }) => {
-        this.$message({
+      crudCategory.addCategory(this.category).then(res => {
+         this.$message({
           message: '菜单保存成功',
           type: 'success'
         })
@@ -356,11 +330,8 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/product/category/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({ data }) => {
+
+          crudCategory.deleteCategory(ids).then(res => {
             this.$message({
               message: '菜单删除成功',
               type: 'success'
@@ -372,7 +343,6 @@ export default {
           })
         })
         .catch(() => {})
-
       console.log('remove', node, data)
     }
   } // 如果页面有keep-alive缓存功能，这个函数会触发
