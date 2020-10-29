@@ -16,6 +16,7 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
+import crudCategory from '@/api/product/category'
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -49,12 +50,16 @@ export default {
       return data.categoryName.indexOf(value) !== -1;
     },
     getMenus() {
-      this.$http({
-        url: this.$http.adornUrl("/product/category/list/tree"),
-        method: "get"
-      }).then(({ data }) => {
-        this.menus = data.data;
-      });
+      crudCategory.listTree().then(res => {
+        this.menus = res.data;
+      })
+
+      // this.$http({
+      //   url: this.$http.adornUrl("/product/category/list/tree"),
+      //   method: "get"
+      // }).then(({ data }) => {
+      //   this.menus = data.data;
+      // });
     },
     nodeclick(data, node, component) {
       console.log("子组件category的节点被点击", data, node, component);

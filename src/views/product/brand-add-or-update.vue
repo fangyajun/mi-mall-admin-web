@@ -46,6 +46,7 @@
 
 <script>
 import SingleUpload from "@/components/upload/singleUpload";
+import crudBrand from '@/api/product/brand'
 export default {
   components: { SingleUpload },
   data() {
@@ -113,22 +114,34 @@ export default {
       this.$nextTick(() => {
         this.$refs["dataForm"].resetFields();
         if (this.dataForm.brandId) {
-          this.$http({
-            url: this.$http.adornUrl(
-              `/product/brand/info/${this.dataForm.brandId}`
-            ),
-            method: "get",
-            params: this.$http.adornParams()
-          }).then(({ data }) => {
-            if (data && data.code === 0) {
-              this.dataForm.brandName = data.brand.brandName;
-              this.dataForm.logo = data.brand.logo;
-              this.dataForm.description = data.brand.description;
-              this.dataForm.showStatus = data.brand.showStatus;
-              this.dataForm.firstLetter = data.brand.firstLetter;
-              this.dataForm.sort = data.brand.sort;
+          var param = this.dataForm.brandId
+          crudBrand.brandInfo(param).then(res => {
+            if (res && res.code === 0) {
+              this.dataForm.brandName = res.brand.brandName;
+              this.dataForm.logo = res.brand.logo;
+              this.dataForm.description = res.brand.description;
+              this.dataForm.showStatus = res.brand.showStatus;
+              this.dataForm.firstLetter = res.brand.firstLetter;
+              this.dataForm.sort = res.brand.sort;
             }
-          });
+          })
+
+          // this.$http({
+          //   url: this.$http.adornUrl(
+          //     `/product/brand/info/${this.dataForm.brandId}`
+          //   ),
+          //   method: "get",
+          //   params: this.$http.adornParams()
+          // }).then(({ data }) => {
+          //   if (data && data.code === 0) {
+          //     this.dataForm.brandName = data.brand.brandName;
+          //     this.dataForm.logo = data.brand.logo;
+          //     this.dataForm.description = data.brand.description;
+          //     this.dataForm.showStatus = data.brand.showStatus;
+          //     this.dataForm.firstLetter = data.brand.firstLetter;
+          //     this.dataForm.sort = data.brand.sort;
+          //   }
+          // });
         }
       });
     },
@@ -136,22 +149,42 @@ export default {
     dataFormSubmit() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          this.$http({
-            url: this.$http.adornUrl(
-              `/product/brand/${!this.dataForm.brandId ? "save" : "update"}`
-            ),
-            method: "post",
-            data: this.$http.adornData({
-              brandId: this.dataForm.brandId || undefined,
+          if (!this.dataForm.brandId) {
+            let param = {
               brandName: this.dataForm.brandName,
               logo: this.dataForm.logo,
               description: this.dataForm.description,
               showStatus: this.dataForm.showStatus,
               firstLetter: this.dataForm.firstLetter,
               sort: this.dataForm.sort
+            }
+            crudBrand.saveBrand(param).then(res => {
+              if (res && res.code === 0) {
+                this.$message({
+                  message: "操作成功",
+                  type: "success",
+                  duration: 1500,
+                  onClose: () => {
+                    this.visible = false;
+                    this.$emit("refreshDataList");
+                  }
+                });
+              } else {
+                this.$message.error(data.msg);
+              }
             })
-          }).then(({ data }) => {
-            if (data && data.code === 0) {
+          } else {
+            let param = {
+              brandId: this.dataForm.brandId,
+              brandName: this.dataForm.brandName,
+              logo: this.dataForm.logo,
+              description: this.dataForm.description,
+              showStatus: this.dataForm.showStatus,
+              firstLetter: this.dataForm.firstLetter,
+              sort: this.dataForm.sort
+            }
+            crudBrand.updateBrand(param).then(res => {
+              if (res && res.code === 0) {
               this.$message({
                 message: "操作成功",
                 type: "success",
@@ -164,7 +197,41 @@ export default {
             } else {
               this.$message.error(data.msg);
             }
-          });
+            })
+          }
+
+          
+
+
+          // this.$http({
+          //   url: this.$http.adornUrl(
+          //     `/product/brand/${!this.dataForm.brandId ? "save" : "update"}`
+          //   ),
+          //   method: "post",
+          //   data: this.$http.adornData({
+          //     brandId: this.dataForm.brandId || undefined,
+          //     brandName: this.dataForm.brandName,
+          //     logo: this.dataForm.logo,
+          //     description: this.dataForm.description,
+          //     showStatus: this.dataForm.showStatus,
+          //     firstLetter: this.dataForm.firstLetter,
+          //     sort: this.dataForm.sort
+          //   })
+          // }).then(({ data }) => {
+          //   if (data && data.code === 0) {
+          //     this.$message({
+          //       message: "操作成功",
+          //       type: "success",
+          //       duration: 1500,
+          //       onClose: () => {
+          //         this.visible = false;
+          //         this.$emit("refreshDataList");
+          //       }
+          //     });
+          //   } else {
+          //     this.$message.error(data.msg);
+          //   }
+          // });
         }
       });
     }

@@ -48,5 +48,47 @@ export function deleteBrand(data) {
   })
 }
 
+export function listCategorybrandrelationBrands(data) {
+  return request({
+    url: 'api/product/categorybrandrelation/brands/list',
+    method: 'get',
+    data
+  })
+}
 
-export default { listBrand, addCategorybrandrelation, deleteCategorybrandrelation, listCategorybrandrelation, updateBrandStatus, deleteBrand }
+export function brandInfo(data) {
+  return request({
+    url: 'api/product/brand/info/' + data,
+    method: 'get',
+  })
+}
+
+export function saveBrand(data) {
+  return request({
+    url: 'api/product/brand/save',
+    method: 'post',
+    data
+  })
+}
+
+export function updateBrand(data) {
+  return request({
+    url: 'api/product/brand/update',
+    method: 'post',
+    data
+  })
+}
+
+
+
+
+export default { listBrand, 
+  addCategorybrandrelation, 
+  deleteCategorybrandrelation, 
+  listCategorybrandrelation,
+   updateBrandStatus, 
+   deleteBrand,
+   listCategorybrandrelationBrands,
+   brandInfo,
+   saveBrand,
+   updateBrand}

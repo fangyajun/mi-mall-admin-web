@@ -15,6 +15,7 @@
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
 import PubSub from 'pubsub-js';
+import crudBrand from '@/api/product/brand'
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -45,15 +46,22 @@ export default {
   //方法集合
   methods: {
     getCatBrands() {
-      this.$http({
-        url: this.$http.adornUrl("/product/categorybrandrelation/brands/list"),
-        method: "get",
-        params: this.$http.adornParams({
-          categoryId: this.categoryId
-        })
-      }).then(({ data }) => {
-        this.brands = data.data;
-      });
+      var param = {
+        categoryId: this.categoryId
+      }
+      crudBrand.listCategorybrandrelationBrands(param).then(res => {
+        this.brands = res.data;
+      })
+
+      // this.$http({
+      //   url: this.$http.adornUrl("/product/categorybrandrelation/brands/list"),
+      //   method: "get",
+      //   params: this.$http.adornParams({
+      //     categoryId: this.categoryId
+      //   })
+      // }).then(({ data }) => {
+      //   this.brands = data.data;
+      // });
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
