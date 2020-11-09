@@ -174,7 +174,7 @@ export default {
       var param = {
         brandId: this.brandId
       }
-      crudBrand.listCategorybrandrelation(param).then(res => {
+      crudBrand.listCategorybrandrelation(param.brandId).then(res => {
         this.cateRelationTableData = res.data;
       })
 

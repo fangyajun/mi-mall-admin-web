@@ -26,9 +26,8 @@ export function deleteCategorybrandrelation(data) {
 
 export function listCategorybrandrelation(data) {
   return request({
-    url: 'api/product/categorybrandrelation/catelog/list',
+    url: 'api/product/categorybrandrelation/catelog/list?brandId=' + data,
     method: 'get',
-    data
   })
 }
 
