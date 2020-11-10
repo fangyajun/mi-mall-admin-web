@@ -88,6 +88,7 @@
             _self.dataObj.host = response.data.host;
             resolve(true)
           }).catch(err => {
+            console.log(err)
             reject(false)
           })
         })

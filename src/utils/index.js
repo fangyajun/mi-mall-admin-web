@@ -2,6 +2,7 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -385,4 +386,14 @@ export function downloadFile(obj, name, suffix) {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+}
+
+
+/**
+ * 获取uuid
+ */
+export function getUUID () {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    return (c === 'x' ? (Math.random() * 16 | 0) : ('r&0x3' | '0x8')).toString(16)
+  })
 }
