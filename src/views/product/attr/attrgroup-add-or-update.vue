@@ -1,0 +1,223 @@
+<template>
+  <el-dialog
+    :title="!dataForm.id ? '新增' : '修改'"
+    :close-on-click-modal="false"
+    :visible.sync="visible"
+    @closed="dialogClose"
+  >
+    <el-form
+      :model="dataForm"
+      :rules="dataRule"
+      ref="dataForm"
+      @keyup.enter.native="dataFormSubmit()"
+      label-width="120px"
+    >
+      <el-form-item label="组名" prop="attrGroupName">
+        <el-input v-model="dataForm.attrGroupName" placeholder="组名"></el-input>
+      </el-form-item>
+      <el-form-item label="排序" prop="sort">
+        <el-input v-model="dataForm.sort" placeholder="排序"></el-input>
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-input v-model="dataForm.description" placeholder="描述"></el-input>
+      </el-form-item>
+      <el-form-item label="组图标" prop="icon">
+        <el-input v-model="dataForm.icon" placeholder="组图标"></el-input>
+      </el-form-item>
+      <el-form-item label="所属分类" prop="categoryId">
+        <!-- <el-input v-model="dataForm.categoryId" placeholder="所属分类id"></el-input> @change="handleChange" -->
+        <!-- <el-cascader filterable placeholder="试试搜索：手机" v-model="catelogPath" :options="categorys"  :props="props"></el-cascader> -->
+        <!-- :catelogPath="catelogPath"自定义绑定的属性，可以给子组件传值 -->
+        <category-cascader :catelogPath.sync="catelogPath"></category-cascader>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="visible = false">取消</el-button>
+      <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
+    </span>
+  </el-dialog>
+</template>
+
+<script>
+import CategoryCascader from '../../common/category-cascader'
+import crudAttrgroup from '@/api/product/attrgroup'
+import crudCategory from '@/api/product/category'
+export default {
+  data() {
+    return {
+      props:{
+        value:"id",
+        label:"categoryName",
+        children:"children"
+      },
+      visible: false,
+      categorys: [],
+      catelogPath: [],
+      dataForm: {
+        attrGroupId: 0,
+        attrGroupName: "",
+        sort: "",
+        description: "",
+        icon: "",
+        categoryId: 0
+      },
+      dataRule: {
+        attrGroupName: [
+          { required: true, message: "组名不能为空", trigger: "blur" }
+        ],
+        sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
+        description: [
+          { required: true, message: "描述不能为空", trigger: "blur" }
+        ],
+        icon: [{ required: false, message: "组图标可以为空", trigger: "blur" }],
+        categoryId: [
+          { required: true, message: "所属分类id不能为空", trigger: "blur" }
+        ]
+      }
+    };
+  },
+  components:{CategoryCascader},
+  
+  methods: {
+    dialogClose(){
+      this.catelogPath = [];
+    },
+    getCategorys(){
+      crudCategory.listTree().then(res => {
+        this.categorys = res.data;
+      })
+
+      // this.$http({
+      //   url: this.$http.adornUrl("/product/category/list/tree"),
+      //   method: "get"
+      // }).then(({ data }) => {
+      //   this.categorys = data.data;
+      // });
+
+
+    },
+    init(id) {
+      this.dataForm.attrGroupId = id || 0;
+      this.visible = true;
+      this.$nextTick(() => {
+        this.$refs["dataForm"].resetFields();
+        if (this.dataForm.attrGroupId) {
+          crudAttrgroup.attrgroupInfo(this.dataForm.attrGroupId).then(data => {
+            if (data && data.code === 0) {
+              this.dataForm.attrGroupName = data.attrGroup.attrGroupName;
+              this.dataForm.sort = data.attrGroup.sort;
+              this.dataForm.description = data.attrGroup.description;
+              this.dataForm.icon = data.attrGroup.icon;
+              this.dataForm.categoryId = data.attrGroup.categoryId;
+              //查出categoryId的完整路径
+              this.catelogPath =  data.attrGroup.catelogPath;
+            }
+          })
+
+          // this.$http({
+          //   url: this.$http.adornUrl(
+          //     `/product/attrgroup/info/${this.dataForm.attrGroupId}`
+          //   ),
+          //   method: "get",
+          //   params: this.$http.adornParams()
+          // }).then(({ data }) => {
+          //   if (data && data.code === 0) {
+          //     this.dataForm.attrGroupName = data.attrGroup.attrGroupName;
+          //     this.dataForm.sort = data.attrGroup.sort;
+          //     this.dataForm.description = data.attrGroup.description;
+          //     this.dataForm.icon = data.attrGroup.icon;
+          //     this.dataForm.categoryId = data.attrGroup.categoryId;
+          //     //查出categoryId的完整路径
+          //     this.catelogPath =  data.attrGroup.catelogPath;
+          //   }
+          // });
+
+
+        }
+      });
+    },
+    // 表单提交
+    dataFormSubmit() {
+      this.$refs["dataForm"].validate(valid => {
+        if (valid) {
+          var param = {
+            id: this.dataForm.attrGroupId || undefined,
+            attrGroupName: this.dataForm.attrGroupName,
+            sort: this.dataForm.sort,
+            description: this.dataForm.description,
+            icon: this.dataForm.icon,
+            categoryId: this.catelogPath[this.catelogPath.length-1]
+          }
+
+          if (!this.dataForm.attrGroupId) {
+            crudAttrgroup.saveAttrgroup(param).then(data => {
+              if (data && data.code === 0) {
+                this.$message({
+                  message: "操作成功",
+                  type: "success",
+                  duration: 1500,
+                  onClose: () => {
+                    this.visible = false;
+                    this.$emit("refreshDataList");
+                  }
+                });
+              } else {
+                this.$message.error(data.msg);
+              }
+            })
+          } else {
+            crudAttrgroup.updateAttrgroup(param).then(data => {
+              if (data && data.code === 0) {
+                this.$message({
+                  message: "操作成功",
+                  type: "success",
+                  duration: 1500,
+                  onClose: () => {
+                    this.visible = false;
+                    this.$emit("refreshDataList");
+                  }
+                });
+              } else {
+                this.$message.error(data.msg);
+              }
+            })
+          }
+          // this.$http({
+          //   url: this.$http.adornUrl(
+          //     `/product/attrgroup/${
+          //       !this.dataForm.attrGroupId ? "save" : "update"
+          //     }`
+          //   ),
+          //   method: "post",
+          //   data: this.$http.adornData({
+          //     id: this.dataForm.attrGroupId || undefined,
+          //     attrGroupName: this.dataForm.attrGroupName,
+          //     sort: this.dataForm.sort,
+          //     description: this.dataForm.description,
+          //     icon: this.dataForm.icon,
+          //     categoryId: this.catelogPath[this.catelogPath.length-1]
+          //   })
+          // }).then(({ data }) => {
+          //   if (data && data.code === 0) {
+          //     this.$message({
+          //       message: "操作成功",
+          //       type: "success",
+          //       duration: 1500,
+          //       onClose: () => {
+          //         this.visible = false;
+          //         this.$emit("refreshDataList");
+          //       }
+          //     });
+          //   } else {
+          //     this.$message.error(data.msg);
+          //   }
+          // });
+        }
+      });
+    }
+  },
+  created(){
+    this.getCategorys();
+  }
+};
+</script>
